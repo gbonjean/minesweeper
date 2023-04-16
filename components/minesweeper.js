@@ -10,11 +10,9 @@ const STATES = [
   "mine-neighbour-6",
   "mine-neighbour-7",
   "mine-neighbour-8",
-  "mine"
+  "mine",
+  "flagged"
 ]
-
-
-
 
 const createBoard = (rows, cols, minesDensity) => {
   const board = Array.from(Array(rows), () => new Array(cols).fill(0))
@@ -48,97 +46,44 @@ const createBoard = (rows, cols, minesDensity) => {
 export default function Minesweeper() {
   const rows = 8;
   const cols = 8;
-  const minesDensity = 0.2;
+  const minesDensity = 0.1;
 
   const board = createBoard(rows, cols, minesDensity);
 
-  console.log(board);
-
-
   return (
-    <h1>Hello</h1>
+    <Grid grid={board}/>
   );
 }
 
-function Grid({ rows, cols, mines }) {
-  const [grid, setGrid] = useState(Array.from(Array(rows), () => new Array(cols).fill(0)))
+function Grid({ grid }) {
+  const [mask, setMask] = useState(Array.from(Array(grid.length), () => new Array(grid[0].length).fill(true)))
 
-  const lookAround = (row, col) => {
-    let count = 0;
-    const toCheck = [];
-
-    for (let i = row - 1; i <= row + 1; i++) {
-      for (let j = col -1; j <= col + 1; j++) {
-        if (i >= 0 && i < rows && j >= 0 && j < cols && grid[i][j] === 0) {
-          if (mines.includes(`${i}-${j}`)) count++;
-          else toCheck.push([i, j])
-        }
-      }
-    }
-
-    if (count === 0) {
-      const nextGrid = grid.slice();
-      nextGrid[row][col] = 1;
-      setGrid(nextGrid);
-      toCheck.forEach((e) => {
-        lookAround(e[0], e[1])
-      });
-    } else {
-      const nextGrid = grid.slice();
-      nextGrid[row][col] = count + 3;
-      setGrid(nextGrid);
-    }
+  const changeMask = (i, j) => {
+    const nextMask = mask.slice()
+    nextMask[i][j] = false
+    setMask(nextMask)
   }
 
-  // const lookAround = (i) => {
-  //   const x = Math.floor(i / cols);
-  //   const y = i % cols;
-  //   let count = 0;
-  //   const toCheck = [];
 
-  //   if (count === 0) {
-  //     cells[i].classList.replace('unopened', 'opened');
-  //     toCheck.forEach((j) => {
-  //       lookAround(j);
-  //     });
-  //   } else cells[i].classList.replace('unopened', `mine-neighbour-${count}`);
-  // };
-
-  function rightClick(i, j) {
-    if (grid[i][j] === 0) {
-      const nextGrid = grid.slice();
-      nextGrid[i][j] = 2;
-      setGrid(nextGrid);
-    }
+  const rightClick = (i, j) => {
+    if (mask[i][j]) changeMask(i, j)
   }
 
-  function leftClick(i, j) {
-    if (grid[i][j] === 0) {
-      if (mines.includes(`${i}-${j}`)) {
-        const nextGrid = grid.slice();
-        nextGrid[i][j] = 3;
-        setGrid(nextGrid);
-        console.log("BOOM");
-      } else lookAround(i, j);
-    }
-  }
-
-  function handleClick(e, i, j) {
+  const handleClick = (e, i, j) => {
     if (e.buttons === 3) {
       console.log("both");
     } else if (e.buttons === 1) {
       leftClick(i, j);
-    } else rightClick(i,j);
-
+    } else rightClick(i, j);
   }
 
-  // Creating board
+  // Render board
   let board = [];
   let key = 0;
-  for (let i = 0; i < rows; i++) {
+  for (let i = 0; i < mask.length; i++) {
     let row = [];
-    for (let j = 0; j < cols; j++) {
-      row.push(<Cell key={key} value={grid[i][j]} onCellClick={(e) => handleClick(e,i,j)}/>)
+    for (let j = 0; j < mask[0].length; j++) {
+      row.push(<Cell key={key} value={mask[i, j] ? 0 : grid[i, j]} onCellClick={(e) => handleClick(e,i,j)} />)
       key++;
     }
     board.push(<tr key={key}>{row}</tr>)
