@@ -16,12 +16,63 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+
+
+.field {
+  width: 3em;
+}
+
+td.unopened {
+  background: url('../public/img/unopened.svg');
+  cursor: pointer;
+}
+
+td.opened {
+  background: url('../public/img/opened.svg');
+}
+td.flagged {
+  background: url('../public/img/flag.svg');
+}
+td.question {
+  background: url('../public/img/question.svg');
+}
+td.mine {
+  background: url('../public/img/mine.png');
+}
+td.mine-neighbour-1 {
+  background: url('../public/img/1.svg');
+}
+td.mine-neighbour-2 {
+  background: url('../public/img/2.svg');
+}
+td.mine-neighbour-3 {
+  background: url('../public/img/3.svg');
+}
+td.mine-neighbour-4 {
+  background: url('../public/img/4.svg');
+}
+td.mine-neighbour-5 {
+  background: url('../public/img/5.svg');
+}
+td.mine-neighbour-6 {
+  background: url('../public/img/6.svg');
+}
+td.mine-neighbour-7 {
+  background: url('../public/img/7.svg');
+}
+td.mine-neighbour-8 {
+  background: url('../public/img/8.svg');
+}
+
+/* Positioning the Minesweep table and make sure the cells are square */
+table #minesweeper {
+  margin: auto;
+  margin-top: 3em;
+  border: 1px solid #999;
+  border-collapse: collapse;
+}
+table #minesweeper td {
+  width: 28px;
+  height: 28px;
+  background-size: cover;
 }
