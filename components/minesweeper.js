@@ -15,35 +15,74 @@ const STATES = [
   "flagged"
 ]
 
-export default function Minesweeper() {
 
+
+export default function Minesweeper() {
   const [play, setPlay] = useState(false)
-  const rows = 12;
-  const cols = 12
+  const [rows, setRows] = useState(12)
+  const [cols, setCols] = useState(12)
+
+  // const rows = 12;
+  // const cols = 12
   const minesDensity = 0.2;
 
-  const board = createBoard(rows, cols, minesDensity);
+
+
+  const handleRowsChange = (val) => {
+    if (val > 3 && val < 25) setRows(val)
+  }
+
+  const handleColsChange = (val) => {
+    if (val > 3 && val < 25) setCols(val)
+  }
+
+  const end = (boom) => {
+    if (boom) return
+  }
 
   if (play) {
+    const board = createBoard(rows, cols, minesDensity);
+
     return (
     <div className='container mx-auto px-4'>
-      <Grid grid={board} rows={rows} cols={cols} />
+      <Grid grid={board} rows={rows} cols={cols} endGame={(boom) => end(boom)} />
     </div>
     )
-  } else return (
+  } else {
+    // const board = Array.from(Array(rows), () => new Array(cols).fill(0))
+
+    return (
     <div className='container mx-auto px-4'>
-      <Grid grid={board} rows={rows} cols={cols} />
-      <Info />
+      {/* <Grid grid={board} rows={rows} cols={cols} /> */}
+      <Info
+        rows={rows}
+        cols={cols}
+        onRowsChange={(e) => handleRowsChange(Number(e.target.value))}
+        onColsChange={(e) => handleColsChange(Number(e.target.value))}
+        onPlay={() => setPlay(true)}
+       />
     </div>
   );
+  }
 }
 
-function Grid({ grid, rows, cols }) {
+function Grid({ grid, rows, cols, endGame }) {
   const [mask, setMask] = useState(Array.from(Array(rows), () => new Array(cols).fill(10)))
 
   const gameOver = () => {
     setMask(grid)
-    alert("BOOM");
+    alert("BOOM")
+    endGame(true)
+  }
+
+  const hasWon = () => {
+    let res = true
+    mask.forEach((row) => {
+      row.forEach((cell) => {
+        if (cell === 10) res = false
+      })
+    })
+    return res
   }
 
   const changeMask = (i, j, v) => {
@@ -104,9 +143,9 @@ function Grid({ grid, rows, cols }) {
     } else if (e.buttons === 2) {
       rightClick(i, j);
     } else bothClick(i, j);
+    if (hasWon()) endGame(false)
   }
 
-  // Render board
   let board = [];
   let key = 0;
   for (let i = 0; i < rows; i++) {
@@ -129,31 +168,19 @@ function Cell({ value, onCellClick }) {
   );
 }
 
-function Info() {
-  const [rows, setRows] = useState(16)
-  const [cols, setCols] = useState(16)
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-  }
-
-  const handleRowsChange = (value) => {
-    setRows(value)
-  }
-
-  const handleColsChange = (value) => {
-    setCols(value)
-  }
+function Info({ rows, cols, onRowsChange, onColsChange, onPlay }) {
 
   return(
-    <form onSubmit={handleSubmit} >
-      <div>
-        <label>Nombre de lignes</label>
-        <input type="number" value={rows} onChange={(e) => handleRowsChange(e.target.value)}  />
+    <form onSubmit={(e) => e.preventDefault()} >
+      <div className='flex'>
+        <label>Nombre de lignes (4 - 24)</label>
+        <input type="number" value={rows} onChange={onRowsChange}  />
       </div>
-      <label>Nombre de colonnes</label>
-      <input type="number" value={cols} onChange={(e) => handleColsChange(e.target.value)}  />
-      <input type='submit' value="Jouer"/>
+      <div>
+        <label>Nombre de colonnes (4 - 24)</label>
+        <input type="number" value={cols} onChange={onColsChange}  />
+      </div>
+      <input type='submit' value="Jouer" onClick={onPlay}/>
     </form>
   );
 }
