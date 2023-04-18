@@ -19,15 +19,15 @@ const STATES = [
 
 export default function Minesweeper() {
   const [play, setPlay] = useState(false)
-  const [rows, setRows] = useState(12)
-  const [cols, setCols] = useState(12)
+  const [text, setText] = useState('Bienvenue !')
+  const [rows, setRows] = useState(4)
+  const [cols, setCols] = useState(4)
 
-  // const rows = 12;
-  // const cols = 12
-  const minesDensity = 0.2;
+  const minesDensity = 0.1;
+  const board = createBoard(rows, cols, minesDensity);
 
 
-
+  
   const handleRowsChange = (val) => {
     if (val > 3 && val < 25) setRows(val)
   }
@@ -37,30 +37,28 @@ export default function Minesweeper() {
   }
 
   const end = (boom) => {
-    if (boom) return
+    setText(boom ? 'Perdu !' : 'Bravo !')
+    setPlay(false)
   }
 
   if (play) {
-    const board = createBoard(rows, cols, minesDensity);
-
     return (
     <div className='container mx-auto px-4'>
       <Grid grid={board} rows={rows} cols={cols} endGame={(boom) => end(boom)} />
     </div>
     )
   } else {
-    // const board = Array.from(Array(rows), () => new Array(cols).fill(0))
-
     return (
-    <div className='container mx-auto px-4'>
-      {/* <Grid grid={board} rows={rows} cols={cols} /> */}
+    <div className='container mx-auto px-4' onContextMenu={(e) => e.preventDefault()}>
       <Info
+        text={text}
         rows={rows}
         cols={cols}
         onRowsChange={(e) => handleRowsChange(Number(e.target.value))}
         onColsChange={(e) => handleColsChange(Number(e.target.value))}
         onPlay={() => setPlay(true)}
        />
+      {/* <Grid grid={board} rows={rows} cols={cols}  /> */}
     </div>
   );
   }
@@ -71,7 +69,6 @@ function Grid({ grid, rows, cols, endGame }) {
 
   const gameOver = () => {
     setMask(grid)
-    alert("BOOM")
     endGame(true)
   }
 
@@ -168,20 +165,23 @@ function Cell({ value, onCellClick }) {
   );
 }
 
-function Info({ rows, cols, onRowsChange, onColsChange, onPlay }) {
+function Info({ text, rows, cols, onRowsChange, onColsChange, onPlay }) {
 
   return(
-    <form onSubmit={(e) => e.preventDefault()} >
-      <div className='flex'>
-        <label>Nombre de lignes (4 - 24)</label>
-        <input type="number" value={rows} onChange={onRowsChange}  />
-      </div>
-      <div>
-        <label>Nombre de colonnes (4 - 24)</label>
-        <input type="number" value={cols} onChange={onColsChange}  />
-      </div>
-      <input type='submit' value="Jouer" onClick={onPlay}/>
-    </form>
+    <>
+      <p>{text}</p>
+      <form onSubmit={(e) => e.preventDefault()} >
+        <div className='flex'>
+          <label>Nombre de lignes (4 - 24)</label>
+          <input type="number" value={rows} onChange={onRowsChange}  />
+        </div>
+        <div>
+          <label>Nombre de colonnes (4 - 24)</label>
+          <input type="number" value={cols} onChange={onColsChange}  />
+        </div>
+        <input type='submit' value="Jouer" onClick={onPlay}/>
+      </form>
+    </>
   );
 }
 
