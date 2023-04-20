@@ -1,16 +1,29 @@
-import { useState } from 'react';
+import React, { useState, useRef } from 'react';
 
 export default function Minesweeper() {
 
   const minesDensity = 0.1
+  // const maxWidth = React.useRef(24)
+  // const maxHeight = React.useRef(24)
+
+  const [maxHeight, setMaxHeight] = useState(24)
+  const [maxWidth, setMaxWidth] = useState(24)
 
   const [play, setPlay] = useState(false)
   const [text, setText] = useState('Bienvenue !')
-  const [rows, setRows] = useState(8)
-  const [cols, setCols] = useState(8)
+  const [rows, setRows] = useState(maxHeight)
+  const [cols, setCols] = useState(maxWidth)
   const [grid, setGrid] = useState(createBoard(rows, cols, minesDensity))
   const [mask, setMask] = useState(fillMask(rows, cols, 12))
 
+  React.useEffect(() => {
+    setMaxWidth(Math.floor(window.innerWidth / 24 - 1))
+    setMaxHeight(Math.floor(window.innerHeight / 24 - 4))
+    // setRows(maxHeight)
+    // setCols(maxWidth)
+    // setGrid(createBoard(rows, cols, minesDensity))
+    // setMask(fillMask(rows, cols, 12))
+  }, [ ])
 
   const hasWon = () => {
     let res = true
@@ -84,14 +97,14 @@ export default function Minesweeper() {
   }
 
   const handleRowsChange = (val) => {
-    if (val > 3 && val < 25) {
+    if (val >= 4 && val <= maxHeight) {
       setRows(val)
       setMask(fillMask(val, cols, 12))
     }
   }
 
   const handleColsChange = (val) => {
-    if (val > 3 && val < 25) {
+    if (val >= 4 && val <= maxWidth) {
       setCols(val)
       setMask(fillMask(rows, val, 12))
     }
@@ -112,7 +125,7 @@ export default function Minesweeper() {
   }
 
   return (
-    <div className='' onContextMenu={(e) => e.preventDefault()}>
+    <div onContextMenu={(e) => e.preventDefault()}>
       <Info
         play={play}
         text={text} rows={rows} cols={cols}
@@ -134,6 +147,9 @@ export default function Minesweeper() {
 
 const Grid = ({ play, grid, mask, rows, cols, onCellClick }) => {
 
+  console.log(rows);
+  console.log(cols);
+
   const handleClick = (e, i, j) => {
     if (play) {
       onCellClick(e, i, j)
@@ -152,7 +168,9 @@ const Grid = ({ play, grid, mask, rows, cols, onCellClick }) => {
   }
 
   return (
-    <table className='ml-auto mr-auto'><tbody id="minesweeper">{board}</tbody></table>
+    <table className='ml-auto mr-auto'>
+      <tbody id="minesweeper">{board}</tbody>
+    </table>
   );
 
 }
@@ -165,21 +183,33 @@ const Cell = ({ value, onCellClick }) => {
 
 }
 
-const Info = ({ play, text, rows, cols, onRowsChange, onColsChange, onPlay }) => {
+const Info = ({ play, maxHeight, maxWidth, rows, cols, onRowsChange, onColsChange, onPlay }) => {
 
   return(
-    <div className='bg-green-300 flex justify-center'>
-      <p>{text}</p>
+    <div className='container-fluid text-center'>
+      {/* <p>{text}</p> */}
+
       <form onSubmit={(e) => e.preventDefault()} >
-        <div className='flex'>
-          <label>Nombre de lignes (4 - 24)</label>
-          <input type="number" value={rows} onChange={play ? null : onRowsChange}  />
-        </div>
-        <div>
-          <label>Nombre de colonnes (4 - 24)</label>
-          <input type="number" value={cols} onChange={play ? null : onColsChange}  />
-        </div>
-        <input type='submit' value="Jouer" onClick={play ? null : onPlay}/>
+          {/* <label for="rows" class="form-label">Lignes</label> */}
+          <div className='row justify-content-md-center'>
+            <div className='col col-md-4'>
+              <input
+                type="range" className="form-range" id="rows"
+                value={rows} onChange={play ? null : onRowsChange}
+                min="4" max={maxHeight} disabled={play}>
+              </input>
+            </div>
+          </div>
+          {/* <label for="cols" class="form-label">Colonnes</label> */}
+          <input
+            type="range" className="form-range" id="cols"
+            value={cols} onChange={play ? null : onColsChange}
+            min="4" max={maxWidth} disabled={play}></input>
+          <input
+            className="btn btn-primary"
+            type='submit'
+            value="Jouer"
+            onClick={play ? null : onPlay}/>
       </form>
     </div>
   );
