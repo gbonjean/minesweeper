@@ -1,31 +1,16 @@
 import { useState } from 'react';
 
-const STATES = [
-  "opened",
-  "mine-neighbour-1",
-  "mine-neighbour-2",
-  "mine-neighbour-3",
-  "mine-neighbour-4",
-  "mine-neighbour-5",
-  "mine-neighbour-6",
-  "mine-neighbour-7",
-  "mine-neighbour-8",
-  "mine",
-  "unopened",
-  "flagged"
-]
-
-
-
 export default function Minesweeper() {
+
   const minesDensity = 0.1
 
   const [play, setPlay] = useState(false)
   const [text, setText] = useState('Bienvenue !')
-  const [rows, setRows] = useState(4)
-  const [cols, setCols] = useState(4)
+  const [rows, setRows] = useState(8)
+  const [cols, setCols] = useState(8)
   const [grid, setGrid] = useState(createBoard(rows, cols, minesDensity))
-  const [mask, setMask] = useState(Array.from(Array(rows), () => new Array(cols).fill(10)))
+  const [mask, setMask] = useState(fillMask(rows, cols, 12))
+
 
   const hasWon = () => {
     let res = true
@@ -99,43 +84,60 @@ export default function Minesweeper() {
   }
 
   const handleRowsChange = (val) => {
-    if (val > 3 && val < 25) setRows(val)
+    if (val > 3 && val < 25) {
+      setRows(val)
+      setMask(fillMask(val, cols, 12))
+    }
   }
 
   const handleColsChange = (val) => {
-    if (val > 3 && val < 25) setCols(val)
+    if (val > 3 && val < 25) {
+      setCols(val)
+      setMask(fillMask(rows, val, 12))
+    }
   }
 
   const start = () => {
     setPlay(true)
     setGrid(createBoard(rows, cols, minesDensity))
-    setMask(Array.from(Array(rows), () => new Array(cols).fill(10)))
+    setMask(fillMask(rows, cols, 10))
   }
 
   const end = (boom) => {
-    setMask(grid)
     setPlay(false)
-    setText(boom ? 'Perdu !' : 'Bravo !')
+    if (boom) {
+      setMask(grid)
+      setText('Perdu !')
+    } else setText('Bravo !')
   }
 
   return (
     <div className='' onContextMenu={(e) => e.preventDefault()}>
       <Info
+        play={play}
         text={text} rows={rows} cols={cols}
         onRowsChange={(e) => handleRowsChange(Number(e.target.value))}
         onColsChange={(e) => handleColsChange(Number(e.target.value))}
         onPlay={() => start()}
       />
-      <Grid grid={grid} mask={mask} rows={rows} cols={cols} onCellClick={(e, i, j) => handleClick(e, i, j)} />
+      <Grid
+        play={play}
+        grid={grid}
+        mask={mask}
+        rows={rows}
+        cols={cols}
+        onCellClick={(e, i, j) => handleClick(e, i, j)} />
     </div>
-  );
+    );
+
 }
 
-
-function Grid({ grid, mask, rows, cols, onCellClick }) {
+const Grid = ({ play, grid, mask, rows, cols, onCellClick }) => {
 
   const handleClick = (e, i, j) => {
-    onCellClick(e, i, j)
+    if (play) {
+      onCellClick(e, i, j)
+    }
   }
 
   let board = [];
@@ -143,7 +145,7 @@ function Grid({ grid, mask, rows, cols, onCellClick }) {
   for (let i = 0; i < rows; i++) {
     let row = [];
     for (let j = 0; j < cols; j++) {
-      row.push(<Cell key={key} value={mask[i][j] > 9 ? mask[i][j] : grid[i][j]} onCellClick={(e) => handleClick(e, i, j)} />)
+      row.push(<Cell play={play} key={key} value={mask[i][j] > 9 ? mask[i][j] : grid[i][j]} onCellClick={(e) => handleClick(e, i, j)} />)
       key++;
     }
     board.push(<tr key={key}>{row}</tr>)
@@ -152,15 +154,18 @@ function Grid({ grid, mask, rows, cols, onCellClick }) {
   return (
     <table className='ml-auto mr-auto'><tbody id="minesweeper">{board}</tbody></table>
   );
+
 }
 
-function Cell({ value, onCellClick }) {
+const Cell = ({ value, onCellClick }) => {
+
   return (
     <td className={STATES[value]} onMouseDown={onCellClick} onContextMenu={(e) => e.preventDefault()}></td>
   );
+
 }
 
-function Info({ text, rows, cols, onRowsChange, onColsChange, onPlay }) {
+const Info = ({ play, text, rows, cols, onRowsChange, onColsChange, onPlay }) => {
 
   return(
     <div className='bg-green-300 flex justify-center'>
@@ -168,19 +173,21 @@ function Info({ text, rows, cols, onRowsChange, onColsChange, onPlay }) {
       <form onSubmit={(e) => e.preventDefault()} >
         <div className='flex'>
           <label>Nombre de lignes (4 - 24)</label>
-          <input type="number" value={rows} onChange={onRowsChange}  />
+          <input type="number" value={rows} onChange={play ? null : onRowsChange}  />
         </div>
         <div>
           <label>Nombre de colonnes (4 - 24)</label>
-          <input type="number" value={cols} onChange={onColsChange}  />
+          <input type="number" value={cols} onChange={play ? null : onColsChange}  />
         </div>
-        <input type='submit' value="Jouer" onClick={onPlay}/>
+        <input type='submit' value="Jouer" onClick={play ? null : onPlay}/>
       </form>
     </div>
   );
+
 }
 
 const createBoard = (rows, cols, minesDensity) => {
+
   const board = Array.from(Array(rows), () => new Array(cols).fill(0))
 
   // Placing Mines
@@ -207,4 +214,25 @@ const createBoard = (rows, cols, minesDensity) => {
   }
 
   return board;
+
 }
+
+const fillMask = (rows, cols, state) => {
+  return Array.from(Array(rows), () => new Array(cols).fill(state))
+}
+
+const STATES = [
+  "opened",
+  "mine-neighbour-1",
+  "mine-neighbour-2",
+  "mine-neighbour-3",
+  "mine-neighbour-4",
+  "mine-neighbour-5",
+  "mine-neighbour-6",
+  "mine-neighbour-7",
+  "mine-neighbour-8",
+  "mine",
+  "unopened",
+  "flagged",
+  "noplay"
+]

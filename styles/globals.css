@@ -27,6 +27,10 @@ td.unopened {
   cursor: pointer;
 }
 
+td.noplay {
+  background: url('../public/img/unopened.svg');
+}
+
 td.opened {
   background: url('../public/img/opened.svg');
 }
