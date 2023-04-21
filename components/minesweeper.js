@@ -1,5 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image'
+import helpPic from '../public/img/info.png'
 
 export default function Minesweeper() {
   const minesDensity = 0.3
@@ -15,7 +16,7 @@ export default function Minesweeper() {
   const [mask, setMask] = useState(fillMask(rows, cols, 12))
 
   useEffect(() => {
-    setMaxHeight(Math.floor(window.innerHeight / 24 - 4))
+    setMaxHeight(Math.floor(window.innerHeight / 24 - 5))
     setMaxWidth(Math.floor(window.innerWidth / 24 - 1))
   }, [])
 
@@ -122,22 +123,19 @@ export default function Minesweeper() {
   return(
     <div onContextMenu={(e) => e.preventDefault()}>
       <Info
-        play={play}
-        bgColor={bgColor}
+        play={play} bgColor={bgColor}
         rows={rows} cols={cols}
-        maxHeight={maxHeight}
-        maxWidth={maxWidth}
+        maxHeight={maxHeight} maxWidth={maxWidth}
         onRowsChange={(e) => handleRowsChange(Number(e.target.value))}
         onColsChange={(e) => handleColsChange(Number(e.target.value))}
         onPlay={() => start()}
       />
       <Grid
         play={play}
-        grid={grid}
-        mask={mask}
-        rows={rows}
-        cols={cols}
+        grid={grid} mask={mask}
+        rows={rows} cols={cols}
         onCellClick={(e, i, j) => handleClick(e, i, j)} />
+      <Help />
     </div>
     )
 }
@@ -207,6 +205,28 @@ const Info = ({ play, bgColor, maxHeight, maxWidth, rows, cols, onRowsChange, on
       </div>
     </div>
   );
+}
+
+const Help = () => {
+  const [showHelp, setShowHelp] = useState(false)
+
+  return (
+    <div>
+      <div className="position-absolute bottom-3 end-10" hidden={!showHelp}>
+        <div className='d-flex justify-end align-items-center'>
+          <Image src='/../public/img/left-click.jpg' alt="LeftClick" width={18} height={18} />
+          <p className='ps-1 pe-3'>Open cell </p>
+          <Image src='/../public/img/right-click.jpg' alt="RightClick" width={18} height={18} />
+          <p className='ps-1 pe-3'>Place flag </p>
+          <Image src='/../public/img/both-click.jpg' alt="bothClick" width={18} height={18} />
+          <p className='ps-1 pe-3'>Automatic opening </p>
+        </div>
+      </div>
+      <div className="position-absolute bottom-2 end-2" onClick={() => setShowHelp(!showHelp)}>
+        <Image src='/../public/img/info.png' alt="Help" width={32} height={32} />
+      </div>
+    </div>
+  )
 }
 
 const createBoard = (rows, cols, minesDensity) => {
