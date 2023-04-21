@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image'
-import helpPic from '../public/img/info.png'
 
 export default function Minesweeper() {
   const minesDensity = 0.3
 
   const [maxHeight, setMaxHeight] = useState(4)
   const [maxWidth, setMaxWidth] = useState(4)
-
-  const [bgColor, setBgColor] = useState('bg-blue-100')
-  const [play, setPlay] = useState(false)
   const [rows, setRows] = useState(4)
   const [cols, setCols] = useState(4)
   const [grid, setGrid] = useState(createBoard(rows, cols, minesDensity))
   const [mask, setMask] = useState(fillMask(rows, cols, 12))
+  const [bgColor, setBgColor] = useState('bg-blue-100')
+  const [play, setPlay] = useState(false)
 
   useEffect(() => {
     setMaxHeight(Math.floor(window.innerHeight / 24 - 5))
@@ -208,11 +206,11 @@ const Info = ({ play, bgColor, maxHeight, maxWidth, rows, cols, onRowsChange, on
 }
 
 const Help = () => {
-  const [showHelp, setShowHelp] = useState(false)
+  const [hideHelp, setHideHelp] = useState(true)
 
   return (
     <div>
-      <div className="position-absolute bottom-3 end-10" hidden={!showHelp}>
+      <div className="position-absolute bottom-3 end-10" hidden={hideHelp}>
         <div className='d-flex justify-end align-items-center'>
           <Image src='/../public/img/left-click.jpg' alt="LeftClick" width={18} height={18} />
           <p className='ps-1 pe-3'>Open cell </p>
@@ -222,7 +220,7 @@ const Help = () => {
           <p className='ps-1 pe-3'>Automatic opening </p>
         </div>
       </div>
-      <div className="position-absolute bottom-2 end-2" onClick={() => setShowHelp(!showHelp)}>
+      <div className="position-absolute bottom-2 end-2 opacity-75" onClick={() => setHideHelp(!hideHelp)}>
         <Image src='/../public/img/info.png' alt="Help" width={32} height={32} />
       </div>
     </div>
@@ -231,14 +229,12 @@ const Help = () => {
 
 const createBoard = (rows, cols, minesDensity) => {
   const board = Array.from(Array(rows), () => new Array(cols).fill(0))
-
   // Placing Mines
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
       if (Math.random() < minesDensity) board[i][j] = 9;
     }
   }
-
   // Filling board
   for (let i = 0; i < rows; i++) {
     for (let j = 0; j < cols; j++) {
