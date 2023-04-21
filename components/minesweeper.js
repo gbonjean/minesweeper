@@ -2,27 +2,22 @@
 import React, { useState, useEffect } from 'react';
 
 export default function Minesweeper() {
+  const minesDensity = 0.3
 
-  const minesDensity = 0.1
+  const [maxHeight, setMaxHeight] = useState(4)
+  const [maxWidth, setMaxWidth] = useState(4)
 
-
-  const maxHeight = (typeof window !== "undefined") ? Math.floor(window.innerHeight / 24 - 4) : 24
-  const maxWidth = (typeof window !== "undefined") ? Math.floor(window.innerWidth / 24 - 1) : 24
+  const [bgColor, setBgColor] = useState('bg-blue-100')
   const [play, setPlay] = useState(false)
-  const [rows, setRows] = useState(24)
-  const [cols, setCols] = useState(24)
+  const [rows, setRows] = useState(4)
+  const [cols, setCols] = useState(4)
   const [grid, setGrid] = useState(createBoard(rows, cols, minesDensity))
   const [mask, setMask] = useState(fillMask(rows, cols, 12))
 
-
-  // const [hasMounted, setHasMounted] = useState(false)
-
-  // useEffect(() => {
-  //   setHasMounted(true)
-  // }, [])
-
-  // if (!hasMounted) return null
-
+  useEffect(() => {
+    setMaxHeight(Math.floor(window.innerHeight / 24 - 4))
+    setMaxWidth(Math.floor(window.innerWidth / 24 - 1))
+  }, [])
 
   const hasWon = () => {
     let res = true
@@ -111,20 +106,27 @@ export default function Minesweeper() {
 
   const start = () => {
     setPlay(true)
+    setBgColor('bg-blue-50')
     setGrid(createBoard(rows, cols, minesDensity))
     setMask(fillMask(rows, cols, 10))
   }
 
   const end = (boom) => {
     setPlay(false)
-    if (boom) setMask(grid)
+    if (boom) {
+      setMask(grid)
+      setBgColor('bg-red-100')
+    } else setBgColor('bg-green-100')
   }
 
   return(
     <div onContextMenu={(e) => e.preventDefault()}>
       <Info
         play={play}
+        bgColor={bgColor}
         rows={rows} cols={cols}
+        maxHeight={maxHeight}
+        maxWidth={maxWidth}
         onRowsChange={(e) => handleRowsChange(Number(e.target.value))}
         onColsChange={(e) => handleColsChange(Number(e.target.value))}
         onPlay={() => start()}
@@ -141,10 +143,6 @@ export default function Minesweeper() {
 }
 
 const Grid = ({ play, grid, mask, rows, cols, onCellClick }) => {
-
-
-  // console.log(cols);
-
   const handleClick = (e, i, j) => {
     if (play) {
       onCellClick(e, i, j)
@@ -167,44 +165,46 @@ const Grid = ({ play, grid, mask, rows, cols, onCellClick }) => {
       <tbody id="minesweeper">{board}</tbody>
     </table>
   );
-
 }
 
 const Cell = ({ value, onCellClick }) => {
-
   return (
     <td className={STATES[value]} onMouseDown={onCellClick} onContextMenu={(e) => e.preventDefault()}></td>
   );
-
 }
 
-const Info = ({ play, maxHeight, maxWidth, rows, cols, onRowsChange, onColsChange, onPlay }) => {
+const Info = ({ play, bgColor, maxHeight, maxWidth, rows, cols, onRowsChange, onColsChange, onPlay }) => {
+  console.log(maxHeight);
   return(
-    <div className='container-fluid text-center'>
-      {/* <p>{text}</p> */}
-
-      <form onSubmit={(e) => e.preventDefault()} >
-          {/* <label for="rows" class="form-label">Lignes</label> */}
-          <div className='row justify-content-md-center'>
-            <div className='col col-md-4'>
-              <input
-                type="range" className="form-range" id="rows"
-                value={rows} onChange={play ? null : onRowsChange}
-                min="4" max={maxHeight} disabled={play}>
-              </input>
+    <div className={bgColor}>
+      <div className='container-fluid text-center p-2 mb-3'>
+        <form onSubmit={(e) => e.preventDefault()} >
+            <div className='d-flex justify-content-between align-items-center'>
+              <div className='flex-fill'>
+                <input
+                  type="range" className="form-range" id="rows"
+                  value={rows} onChange={play ? null : onRowsChange}
+                  min="4" max={maxHeight} disabled={play}>
+                </input>
+              </div>
+              <div className='ms-3 me-3'>
+                <input
+                  className=""
+                  type='image'
+                  src={play ? 'img/noplay.png' : 'img/play.png'} height='32px' width='32px'
+                  onClick={play ? null : onPlay}
+                  />
+              </div>
+              <div className='flex-fill'>
+                <input
+                  type="range" className="form-range" id="cols"
+                  value={cols} onChange={play ? null : onColsChange}
+                  min="4" max={maxWidth} disabled={play}>
+                </input>
+              </div>
             </div>
-          </div>
-          {/* <label for="cols" class="form-label">Colonnes</label> */}
-          <input
-            type="range" className="form-range" id="cols"
-            value={cols} onChange={play ? null : onColsChange}
-            min="4" max={maxWidth} disabled={play}></input>
-          <input
-            className="btn btn-primary"
-            type='submit'
-            value="Jouer"
-            onClick={play ? null : onPlay}/>
-      </form>
+          </form>
+      </div>
     </div>
   );
 }
