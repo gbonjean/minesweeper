@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import Image from 'next/image'
+import leftClick from '../public/img/left-click.jpg'
+import rightClick from '../public/img/right-click.jpg'
+import bothClick from '../public/img/both-click.jpg'
+import info from '../public/img/info.png'
 
 export default function Minesweeper() {
   const minesDensity = 0.3
 
-  const [maxHeight, setMaxHeight] = useState(4)
-  const [maxWidth, setMaxWidth] = useState(4)
-  const [rows, setRows] = useState(4)
-  const [cols, setCols] = useState(4)
+  const [maxHeight, setMaxHeight] = useState(12)
+  const [maxWidth, setMaxWidth] = useState(12)
+  const [rows, setRows] = useState(12)
+  const [cols, setCols] = useState(12)
   const [grid, setGrid] = useState(createBoard(rows, cols, minesDensity))
   const [mask, setMask] = useState(fillMask(rows, cols, 12))
   const [bgColor, setBgColor] = useState('bg-blue-100')
@@ -212,16 +216,16 @@ const Help = () => {
     <div>
       <div className="position-absolute bottom-3 end-10" hidden={hideHelp}>
         <div className='d-flex justify-end align-items-center'>
-          <Image src='/../public/img/left-click.jpg' alt="LeftClick" width={18} height={18} />
+          <Image src={leftClick} alt="LeftClick" width={18} height={18} />
           <p className='ps-1 pe-3'>Open cell </p>
-          <Image src='/../public/img/right-click.jpg' alt="RightClick" width={18} height={18} />
+          <Image src={rightClick} alt="RightClick" width={18} height={18} />
           <p className='ps-1 pe-3'>Place flag </p>
-          <Image src='/../public/img/both-click.jpg' alt="bothClick" width={18} height={18} />
-          <p className='ps-1 pe-3'>Automatic opening </p>
+          <Image src={bothClick} alt="bothClick" width={18} height={18} />
+          <p className='ps-1 pe-3'>Open around </p>
         </div>
       </div>
       <div className="position-absolute bottom-2 end-2 opacity-75" onClick={() => setHideHelp(!hideHelp)}>
-        <Image src='/../public/img/info.png' alt="Help" width={32} height={32} />
+        <Image src={info} alt="Help" width={32} height={32} />
       </div>
     </div>
   )
