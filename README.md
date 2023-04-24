@@ -1,2 +1,2 @@
-## My first JS/React game 
+## My first React game 
 windows XP flavor...
